@@ -59,10 +59,15 @@ export type PaymentResult = {
   downloadUrl?: string;
 }
 
-
-export async function initiatePayment(fileId: string) {
+export async function initiatePayment(fileId: string): Promise<PaymentResult> {
   const supabase = await createClient();
-  
+
+  // Verify file exists
+  const { data: file } = await supabase.from('files').select('*').eq('id', fileId).single();
+
+  if (!file) {
+    return { success: false, message: 'File not found' };
+  }
   // 1. Create a pending order
   const { data: order, error } = await supabase
     .from('orders')
@@ -72,33 +77,20 @@ export async function initiatePayment(fileId: string) {
 
   if (error) throw new Error('Failed to create order');
 
+
+  // Mock Payment Logic -> Generate Signed URL
+  const { data } = await supabase.storage
+    .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
+    .createSignedUrl(file.storage_path, 3600, {
+      download: file.filename,
+    }); // 1 hour link
+
+  if (!data?.signedUrl) {
+    return { success: false, message: 'Could not generate download link' };
+  }
+
   // 2. Redirect to Telegram with the payload
-  const botUsername = process.env.NEXT_PUBLIC_BOT_USERNAME!; // e.g., 'StarDropBot'
-  console.log(botUsername, order.id);
-  
-  redirect(`https://t.me/${botUsername}?start=order_${order.id}`);
+
+
+  return { success: true, downloadUrl: data.signedUrl };
 }
-
-// export async function initiatePayment(fileId: string): Promise<PaymentResult> {
-//   const supabase = await createClient();
-
-//   // Verify file exists
-//   const { data: file } = await supabase.from('files').select('*').eq('id', fileId).single();
-
-//   if (!file) {
-//     return { success: false, message: 'File not found' };
-//   }
-
-//   // Mock Payment Logic -> Generate Signed URL
-//   const { data } = await supabase.storage
-//     .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
-//     .createSignedUrl(file.storage_path, 3600, {
-//       download: file.filename,
-//     }); // 1 hour link
-
-//   if (!data?.signedUrl) {
-//     return { success: false, message: 'Could not generate download link' };
-//   }
-
-//   return { success: true, downloadUrl: data.signedUrl };
-// }
