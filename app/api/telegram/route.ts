@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 // 1. Setup Supabase & Telegraf
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // Use Service Role for backend actions
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY! // Use Service Role for backend actions
 );
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
