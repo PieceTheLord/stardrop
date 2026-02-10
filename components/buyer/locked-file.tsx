@@ -31,11 +31,10 @@ export function LockedFile({ id, filename, size, price }: LockedFileProps) {
       if (result.success && result.downloadUrl) {
         setDownloadUrl(result.downloadUrl);
         // Trigger download automatically
-        window.location.assign(result.downloadUrl);
-        const botUsername = process.env.NEXT_PUBLIC_BOT_USERNAME!; // e.g., 'StarDropBot'
-        console.log(botUsername, id);
+        // window.location.assign(result.downloadUrl);
 
-        redirect(`https://t.me/${botUsername}?start=order_${id}`);
+
+        redirect(result.redirectURL!);
       } else {
         setError('Payment processing failed. Please try again.');
       }

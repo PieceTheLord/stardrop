@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "10mb"
     }
-  }
+  },
+  crossOrigin: "anonymous"
 };
 
 export default nextConfig;

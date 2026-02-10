@@ -57,6 +57,7 @@ export type PaymentResult = {
   success: boolean;
   message?: string;
   downloadUrl?: string;
+  redirectURL?: string;
 }
 
 export async function initiatePayment(fileId: string): Promise<PaymentResult> {
@@ -68,6 +69,7 @@ export async function initiatePayment(fileId: string): Promise<PaymentResult> {
   if (!file) {
     return { success: false, message: 'File not found' };
   }
+
   // 1. Create a pending order
   const { data: order, error } = await supabase
     .from('orders')
@@ -89,8 +91,9 @@ export async function initiatePayment(fileId: string): Promise<PaymentResult> {
     return { success: false, message: 'Could not generate download link' };
   }
 
-  // 2. Redirect to Telegram with the payload
-
-
-  return { success: true, downloadUrl: data.signedUrl };
+  // 2. Create a redirect to Telegram with the payload
+  const botUsername = process.env.NEXT_PUBLIC_BOT_USERNAME!; // e.g., 'StarDropBot'
+  console.log(botUsername, fileId);
+  const redirectURL = `https://t.me/${botUsername}?start=order_${order.id}`
+  return { success: true, downloadUrl: data.signedUrl, redirectURL };
 }
