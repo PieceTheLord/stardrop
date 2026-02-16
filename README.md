@@ -3,7 +3,7 @@
 **Monetize your Telegram Channel with digital downloads. No Stripe. No Banks. Just Stars.**
 
 ## 🚀 The Problem
-Creators in restricted regions (Russia, etc.) cannot easily sell digital products because Stripe/PayPal blocks them. 
+Beginner creators cannot easily start to sell digital products because of KYC, taxes and so on. 
 **StarDrop** solves this by using **Telegram Stars** (internal currency) to act as the payment gateway.
 
 ## ✨ Features
