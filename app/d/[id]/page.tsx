@@ -12,9 +12,9 @@ export default async function BuyerPage({ params }: PageProps) {
   const supabase = await createClient();
 
   const { data: file, error } = await supabase
-    .from('files')
-    .select('filename, size, price')
-    .eq('id', id)
+    .from("files")
+    .select("filename, size, price")
+    .eq("id", id)
     .single();
 
   if (error || !file) {
@@ -31,8 +31,8 @@ export default async function BuyerPage({ params }: PageProps) {
           </h1>
           <p className="text-muted-foreground">Secure File Transfer</p>
         </div>
-        
-        <LockedFile 
+
+        <LockedFile
           id={id}
           filename={file.filename}
           size={file.size}
@@ -40,8 +40,8 @@ export default async function BuyerPage({ params }: PageProps) {
         />
 
         <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground opacity-70">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Secured by Telegram Payments</span>
+          <ShieldCheck className="w-4 h-4" />
+          <span>Secured by Telegram Payments</span>
         </div>
       </div>
     </main>

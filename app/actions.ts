@@ -10,6 +10,13 @@ export type ActionState = {
   error?: string;
 };
 
+
+/**
+ * Upload a content in the db and allow to pay and download it by url `d/${id}`
+ * @param prevState 
+ * @param formData 
+ * @returns 
+ */
 export async function generateLink(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const file = formData.get('file') as File;
@@ -53,6 +60,40 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
   return { success: true, message: 'Success', link };
 }
 
+/**
+ * Generate a URL to download a file from the SupaBase storage by id
+ * @param fileId file id
+ * @returns URL to download the file
+ */
+export async function downloadFile(fileId: string) {
+  try {
+    const supabase = await createClient()
+
+    const { data: file, error: fileError } = await supabase.from("files").select("*").eq("id", fileId).single()
+
+    if (fileError) {
+      console.error("Error, while retrieving file", fileError);
+      return null
+    }
+
+    const { data, error } = await supabase.storage.
+      from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
+      .createSignedUrl(file!.storage_path, 3600, {
+        download: file.filename,
+      })
+
+    if (error || !data?.signedUrl) {
+      console.error('Error creating signed URL:', error);
+      return null; // Or handle the error appropriately
+    }
+
+    return data.signedUrl;
+
+  } catch (err) {
+    return console.error("Error at downloadFile function", err);
+  }
+}
+
 export type PaymentResult = {
   success: boolean;
   message?: string;
@@ -83,7 +124,7 @@ export async function initiatePayment(fileId: string): Promise<PaymentResult> {
   // Mock Payment Logic -> Generate Signed URL
   const { data } = await supabase.storage
     .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
-    .createSignedUrl(file.storage_path, 3600, {
+    .createSignedUrl(file.storage_path, 3600 * 24, {
       download: file.filename,
     }); // 1 hour link
 
@@ -95,5 +136,7 @@ export async function initiatePayment(fileId: string): Promise<PaymentResult> {
   const botUsername = process.env.NEXT_PUBLIC_BOT_USERNAME!; // e.g., 'StarDropBot'
   console.log(botUsername, fileId);
   const redirectURL = `https://t.me/${botUsername}?start=order_${order.id}`
-  return { success: true, downloadUrl: data.signedUrl, redirectURL };
+  console.log(data.signedUrl);
+
+  return { success: true, downloadUrl: data.signedUrl, redirectURL, message: "Success initiate payment" };
 }

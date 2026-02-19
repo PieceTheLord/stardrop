@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { initiatePayment } from '@/app/actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lock, File as FileIcon, Download, Loader2, CreditCard, Check } from 'lucide-react';
-import { formatBytes } from '@/lib/utils';
-import { cn } from '@/lib/utils';
-import { redirect } from 'next/navigation';
+import { useState } from "react";
+import { downloadFile, initiatePayment } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Lock,
+  File as FileIcon,
+  Download,
+  Loader2,
+  CreditCard,
+  Check,
+} from "lucide-react";
+import { formatBytes } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface LockedFileProps {
   id: string;
@@ -19,33 +31,34 @@ interface LockedFileProps {
 export function LockedFile({ id, filename, size, price }: LockedFileProps) {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handlePay = async () => {
+  const handlePay = async (id: string) => {
     try {
       setIsLoading(true);
-      setError('');
+      setError("");
+
+      if (price === 0) {
+        const signedUrl = await downloadFile(id);
+        setDownloadUrl(signedUrl!);
+        return router.push(signedUrl!);
+      }
 
       const result = await initiatePayment(id);
 
       if (result.success && result.downloadUrl) {
         setDownloadUrl(result.downloadUrl);
-        // Trigger download automatically
-        // window.location.assign(result.downloadUrl);
-
-
-        redirect(result.redirectURL!);
+        router.push(result.redirectURL!);
       } else {
-        setError('Payment processing failed. Please try again.');
+        setError("Payment processing failed. Please try again.");
       }
     } catch {
-      setError('An unexpected error occurred.');
+      setError("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const isFree = price === 0;
 
   if (downloadUrl) {
     return (
@@ -60,8 +73,13 @@ export function LockedFile({ id, filename, size, price }: LockedFileProps) {
             <p className="text-sm text-gray-400">Your download has started.</p>
           </div>
 
-          <Button size="lg" asChild variant="outline" className="w-full border-white/10 text-white hover:bg-white/10">
-            <a href={downloadUrl} rel="noopener noreferrer" download={filename}>
+          <Button
+            size="lg"
+            asChild
+            variant="outline"
+            className="w-full border-white/10 text-white hover:bg-white/10"
+          >
+            <a href={downloadUrl} rel="noopener  noreferrer" download={filename}>
               <Download className="w-4 h-4 mr-2" />
               Download Again
             </a>
@@ -84,35 +102,41 @@ export function LockedFile({ id, filename, size, price }: LockedFileProps) {
       <CardContent className="space-y-6 pt-6">
         <div className="text-center space-y-1">
           <p className="text-3xl font-bold">
-            {isFree ? "Free" : `$${price.toFixed(2)}`}
+            {price === 0 ? "Free" : `$${price.toFixed(2)}`}
           </p>
           <p className="text-sm text-gray-500">
-            {isFree
-              ? "Instant access"
-              : "One-time payment"}
+            {price === 0 ? "Instant access" : "One-time payment"}
           </p>
         </div>
 
         {error && (
-          <p className="text-sm text-red-400 text-center bg-red-400/10 p-2 rounded-lg">{error}</p>
+          <p className="text-sm text-red-400 text-center bg-red-400/10 p-2 rounded-lg">
+            {error}
+          </p>
         )}
       </CardContent>
 
       <CardFooter className="pb-8">
-        <Button
-          className="w-full h-12 text-base font-semibold bg-[#007aff] hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]"
-          onClick={initiatePayment.bind(null, id)}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : isFree ? (
-            <Download className="w-5 h-5 mr-2" />
-          ) : (
-            <CreditCard className="w-5 h-5 mr-2" />
-          )}
-          {isLoading ? "Processing..." : isFree ? "Download Now" : "Unlock File"}
-        </Button>
+        <a target="_blank" className="w-full">
+          <Button
+            className="w-full h-12 text-base font-semibold bg-[#007aff] hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]"
+            onClick={() => handlePay(id)}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            ) : price === 0 ? (
+              <Download className="w-5 h-5 mr-2" />
+            ) : (
+              <CreditCard className="w-5 h-5 mr-2" />
+            )}
+            {isLoading
+              ? "Processing..."
+              : price === 0
+                ? "Download Now"
+                : "Unlock File"}
+          </Button>
+        </a>
       </CardFooter>
     </Card>
   );

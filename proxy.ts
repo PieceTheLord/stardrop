@@ -2,6 +2,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+async function supabaseSession(request: NextRequest) {
+  
+}
+
 export async function proxy(request: NextRequest) {
   // 1. Handle Preflight OPTIONS requests
   if (request.method === 'OPTIONS') {
