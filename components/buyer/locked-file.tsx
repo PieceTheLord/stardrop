@@ -38,7 +38,7 @@ export function LockedFile({ id, filename, size, price }: LockedFileProps) {
     try {
       setIsLoading(true);
       setError("");
-
+      
       if (price === 0) {
         const signedUrl = await downloadFile(id);
         setDownloadUrl(signedUrl!);

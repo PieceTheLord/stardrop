@@ -21,6 +21,7 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
   const supabase = await createClient();
   const file = formData.get('file') as File;
   const price = formData.get('price') as string;
+  const user_id = (await supabase.auth.getUser()).data.user?.id
 
   if (!file) {
     return { success: false, message: 'No file uploaded' };
@@ -45,6 +46,7 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
       size: file.size,
       price: parseFloat(price) || 0,
       storage_path: uploadData.path,
+      user_id,
     })
     .select('id')
     .single();
@@ -69,7 +71,11 @@ export async function downloadFile(fileId: string) {
   try {
     const supabase = await createClient()
 
-    const { data: file, error: fileError } = await supabase.from("files").select("*").eq("id", fileId).single()
+    const { data: file, error: fileError } =
+      await supabase.
+        from("files").select("*")
+        .eq("id", fileId).single()
+    console.log(file);
 
     if (fileError) {
       console.error("Error, while retrieving file", fileError);
@@ -82,6 +88,7 @@ export async function downloadFile(fileId: string) {
         download: file.filename,
       })
 
+    console.log("Data:", data);
     if (error || !data?.signedUrl) {
       console.error('Error creating signed URL:', error);
       return null; // Or handle the error appropriately

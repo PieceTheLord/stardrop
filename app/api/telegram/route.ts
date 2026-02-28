@@ -14,19 +14,21 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 bot.start(async (ctx) => {
   const payload = ctx.payload; // This is the "order_123" part
   console.log(ctx);
-  
+
   if (!payload || !payload.startsWith('order_')) {
     return ctx.reply('Welcome! To buy a file, please use the link from the website.');
   }
 
   const orderId = payload.replace('order_', '');
-  
+
   // Fetch file details from Supabase
-  const { data: order } = await supabase.from('orders').select('*, files(*)').eq('id', orderId).single();
+  const { data: order } = await supabase
+    .from('orders').select('*, files(*)')
+    .eq('id', orderId).single();
 
   if (!order || order.status === 'paid') return ctx.reply('Order not found or already paid.');
-  console.log(order.id);
-  
+  console.log(order.id, order.price);
+
   // SEND THE INVOICE (Stars Payment)
   await ctx.replyWithInvoice({
     title: "My Digital File",
@@ -50,7 +52,7 @@ bot.on('successful_payment', async (ctx) => {
   const payment = ctx.message.successful_payment;
   const orderId = payment.invoice_payload; // We recover the Order ID
   console.log(orderId);
-  
+
   // A. Mark Order as Paid
   await supabase.from('orders').update({
     status: 'paid',
@@ -70,7 +72,7 @@ bot.on('successful_payment', async (ctx) => {
     .single();
 
   if (orderError) return console.error("error, while retrieving file's details on successful_payemnt notification", orderError);
-  
+
 
   const { data: downloadLink, error: downloadLinkError } =
     await supabase.storage

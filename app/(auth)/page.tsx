@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import Link from "next/link";
+import { ProfileDropdownMenu } from "@/components/ui/profileDropDown";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -51,9 +52,7 @@ export default async function Home() {
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MoreVertical className="w-5 h-5" />
-          </Button>
+            <ProfileDropdownMenu />
         </div>
 
         {/* Stats Grid */}
@@ -94,9 +93,6 @@ export default async function Home() {
               <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
               Your Content
             </h2>
-            <Link href="#upload" className="text-sm text-blue-500 hover:underline">
-              Upload New
-            </Link>
           </div>
 
           <div className="space-y-3">
