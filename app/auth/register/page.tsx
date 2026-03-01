@@ -61,11 +61,8 @@ export default function Page() {
       };
       if (successSignUp) {
         toast.success("Please confirm your email, the message was sent!");
-        const user = await supabase.auth.getSession()
-        console.log(user.data.session?.user.id);
-        
+
         const { data, error } = await supabase.from("Creators").insert({
-          user_id: user.data.session?.user?.id,
           email: User.email,
           balance: 0,
           ton_wallet: User.tonWallet,

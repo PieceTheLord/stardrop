@@ -1,4 +1,4 @@
-import { Telegraf, Context } from 'telegraf';
+import { Telegraf } from 'telegraf';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
@@ -38,7 +38,7 @@ bot.start(async (ctx) => {
     provider_token: "", // MUST BE EMPTY STRING
     currency: "XTR",    // MUST BE 'XTR'
 
-    prices: [{ label: "File Access", amount: 2 }], // 50 Stars
+    prices: [{ label: "File Access", amount: order.price }], 
   });
 });
 

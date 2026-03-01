@@ -102,7 +102,7 @@ export function LockedFile({ id, filename, size, price }: LockedFileProps) {
       <CardContent className="space-y-6 pt-6">
         <div className="text-center space-y-1">
           <p className="text-3xl font-bold">
-            {price === 0 ? "Free" : `$${price.toFixed(2)}`}
+            {price === 0 ? "Free" : `⭐${price.toFixed(0)}`}
           </p>
           <p className="text-sm text-gray-500">
             {price === 0 ? "Instant access" : "One-time payment"}

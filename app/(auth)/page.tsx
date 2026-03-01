@@ -18,12 +18,13 @@ import { ProfileDropdownMenu } from "@/components/ui/profileDropDown";
 
 export default async function Home() {
   const supabase = await createClient();
+  const user = await supabase.auth.getUser()
   
   // Fetch files
   const { data: files, error } = await supabase
     .from('files')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }).eq('email', user.data.user!.email);
 
   if (error) {
     console.error("Error fetching files:", error);
@@ -41,11 +42,11 @@ export default async function Home() {
         {/* Profile Summary */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/10">
+            {/* <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/10">
               ST
-            </div>
+            </div> */}
             <div>
-              <h1 className="text-xl font-bold">StarCreator</h1>
+              <h1 className="text-xl font-bold">{user.data.user?.email}</h1>
               <p className="text-sm text-muted-foreground flex items-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
                 Active Content Creator
@@ -81,7 +82,7 @@ export default async function Home() {
                 <DollarSign className="w-5 h-5" />
               </div>
               <p className="text-sm text-gray-400">Revenue</p>
-              <p className="text-lg font-bold">${totalRevenue.toFixed(2)}</p>
+              <p className="text-lg font-bold">⭐{totalRevenue.toFixed(0)}</p>
             </CardContent>
           </Card>
         </div>
@@ -115,7 +116,7 @@ export default async function Home() {
                         <p className="text-[10px] text-gray-500 uppercase">Sales</p>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-blue-400">${parseFloat(file.price || 0).toFixed(2)}</p>
+                        <p className="text-sm font-bold text-blue-400">⭐{parseFloat(file.price || 0).toFixed(0)}</p>
                         <p className="text-[10px] text-gray-500 uppercase">Price</p>
                       </div>
                       <Button variant="ghost" size="icon" className="group-hover:text-blue-500 transition-colors" asChild>

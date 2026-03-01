@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid'
 
 export type ActionState = {
   success: boolean;
@@ -21,20 +22,23 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
   const supabase = await createClient();
   const file = formData.get('file') as File;
   const price = formData.get('price') as string;
-  const user_id = (await supabase.auth.getUser()).data.user?.id
+  const user = (await supabase.auth.getUser()).data.user
+  const fileExt = file.name.split('.').pop()
+  const safeFileName = `${uuidv4()}.${fileExt}`;
+
 
   if (!file) {
     return { success: false, message: 'No file uploaded' };
   }
 
   // 1. Upload to Supabase Storage
-  const filename = `${Date.now()}-${file.name}`;
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
-    .upload(filename, file);
+    .upload(safeFileName, file);
 
   if (uploadError) {
     console.error('Upload Error:', uploadError);
+    if (uploadError.message.startsWith('Invalid key')) return { success: false, message: 'Invalid file name' };
     return { success: false, message: 'File upload failed' };
   }
 
@@ -46,7 +50,7 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
       size: file.size,
       price: parseFloat(price) || 0,
       storage_path: uploadData.path,
-      user_id,
+      email: user?.email,
     })
     .select('id')
     .single();

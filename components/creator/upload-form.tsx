@@ -173,19 +173,19 @@ export function UploadForm() {
             <div className="flex items-center justify-between p-4 bg-[#1c1c1e] rounded-xl border border-white/5">
                  <div className="flex flex-col">
                      <label htmlFor="price" className="text-sm font-medium text-gray-300">
-                        Price (USD)
+                        Price (Stars)
                      </label>
-                     <p className="text-xs text-gray-500">Approx. $2.50 USD</p>
+                     <p className="text-xs text-gray-500">Minimum 25</p>
                  </div>
                  <div className="relative w-32">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⭐</span>
                     <Input 
                         id="price" 
                         name="price" 
                         type="number" 
-                        placeholder="0.00" 
-                        min="0" 
-                        step="0.01" 
+                        placeholder="100" 
+                        min="25"
+                        step="1" 
                         className="pl-7 bg-[#2c2c2e] border-transparent focus:border-blue-500 text-white placeholder:text-gray-600 text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
                     />
                  </div>
