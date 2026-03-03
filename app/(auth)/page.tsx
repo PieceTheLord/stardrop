@@ -149,7 +149,7 @@ export default async function Home() {
         {/* Upload Section */}
         <div id="upload" className="space-y-4 pt-4">
           <div className="px-2">
-            <h2 className="text-lg font-semibold">Generate Secure Link</h2>
+            <h2 className="text-lg font-semibold">Generate Secure Link (up to 500mb)</h2>
             <p className="text-sm text-muted-foreground">Upload a file and set your price to start earning.</p>
           </div>
           <UploadForm />
