@@ -2,15 +2,16 @@ import { createClient } from "@/utils/supabase/server";
 import { UploadForm } from "@/components/creator/upload-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  FileText, 
-  Download, 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
+import {
+  FileText,
+  Download,
+  DollarSign,
+  TrendingUp,
+  Users,
   Plus,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  Info
 } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import Link from "next/link";
@@ -19,7 +20,7 @@ import { ProfileDropdownMenu } from "@/components/ui/profileDropDown";
 export default async function Home() {
   const supabase = await createClient();
   const user = await supabase.auth.getUser()
-  
+
   // Fetch files
   const { data: files, error } = await supabase
     .from('files')
@@ -29,12 +30,15 @@ export default async function Home() {
   if (error) {
     console.error("Error fetching files:", error);
   }
+  const { data: orders, error: orderError } = await supabase
+    .from('orders')
+    .select('*')
 
   // Calculate stats
   const totalFiles = files?.length || 0;
   // Note: download_count is not in the initial migration, defaulting to 0 for demo UI
-  const totalDownloads = files?.reduce((acc: number, file: any) => acc + (file.download_count || 0), 0) || 0;
-  const totalRevenue = files?.reduce((acc: number, file: any) => acc + (parseFloat(file.price || 0) * (file.download_count || 0)), 0) || 0;
+  const totalDownloads = files?.reduce((acc: number, file: any) => acc + (file.sell_count || 0), 0) || 0;
+  const totalRevenue = files?.reduce((acc: number, file: any) => acc + (parseFloat(file.price || 0) * (file.sell_count || 0)), 0) || 0;
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-background text-foreground pb-24">
@@ -53,7 +57,7 @@ export default async function Home() {
               </p>
             </div>
           </div>
-            <ProfileDropdownMenu />
+          <ProfileDropdownMenu />
         </div>
 
         {/* Stats Grid */}
@@ -76,8 +80,14 @@ export default async function Home() {
               <p className="text-lg font-bold">{totalDownloads}</p>
             </CardContent>
           </Card>
-          <Card className="bg-[#1c1c1e] border-none shadow-xl">
+          <Card className="bg-[#1c1c1e] border-none shadow-xl relative">
             <CardContent className="p-4 flex flex-col items-center text-center space-y-1">
+              <div className="absolute top-2 right-2 group items-center flex">
+                <Info className="w-3.5 h-3.5 text-gray-500 hover:text-gray-300 transition-colors cursor-help" />
+                <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 px-2 py-1 bg-[#2c2c2e] text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 border border-white/5 shadow-xl select-none">
+                  10% fee
+                </div>
+              </div>
               <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
                 <DollarSign className="w-5 h-5" />
               </div>
@@ -120,9 +130,9 @@ export default async function Home() {
                         <p className="text-[10px] text-gray-500 uppercase">Price</p>
                       </div>
                       <Button variant="ghost" size="icon" className="group-hover:text-blue-500 transition-colors" asChild>
-                         <Link href={`/d/${file.id}`}>
-                            <ExternalLink className="w-4 h-4" />
-                         </Link>
+                        <Link href={`/d/${file.id}`}>
+                          <ExternalLink className="w-4 h-4" />
+                        </Link>
                       </Button>
                     </div>
                   </CardContent>
@@ -139,8 +149,8 @@ export default async function Home() {
         {/* Upload Section */}
         <div id="upload" className="space-y-4 pt-4">
           <div className="px-2">
-             <h2 className="text-lg font-semibold">Generate Secure Link</h2>
-             <p className="text-sm text-muted-foreground">Upload a file and set your price to start earning.</p>
+            <h2 className="text-lg font-semibold">Generate Secure Link</h2>
+            <p className="text-sm text-muted-foreground">Upload a file and set your price to start earning.</p>
           </div>
           <UploadForm />
         </div>

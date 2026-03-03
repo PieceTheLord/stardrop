@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb"
     }
   },
+  // allowedDevOrigins: [
+  //   'https://biennially-safe-phoebe.cloudpub.ru/'
+  // ]
   // async headers() {
   //   return [
   //     {

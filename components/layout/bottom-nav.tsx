@@ -11,23 +11,11 @@ export function BottomNav() {
 
   const navItems = [
     {
-      name: 'Home',
-      href: '/',
-      icon: Home,
-      active: pathname === '/',
-    },
-    {
       name: 'Create',
       href: '/create', // Placeholder, creates are currently inline on home
       icon: PlusCircle,
       active: false, // Always show as action
       isAction: true,
-    },
-    {
-      name: 'Earnings',
-      href: '/earnings',
-      icon: Wallet,
-      active: pathname === '/earnings',
     },
   ];
 

@@ -17,7 +17,7 @@ export default function Page() {
     tonWallet: "",
   });
   const [Loading, setLoading] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string>(" ");
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,18 +27,22 @@ export default function Page() {
       [name]: value,
     });
 
-    if ((name === "checkPsw" || name === "password") && User.password.length < 6) {
+    if (
+      (name === "password") &&
+      value.length <= 6
+    ) {
       setSubmitError("Password must be at least 6 characters long");
-    } else if ((name === "checkPsw" || name === "password") && User.checkPsw === User.password) {
-      // ! This is strange logic, now I don't knwo and I'm not going to go deeper with this.
+    }
+    else if (name === "checkPsw" && value !== User.password) {
       setSubmitError("Passwords doesn't match!");
-    } else if (name === "tonWallet" && !/^EQ[A-Za-z0-9_-]{47}$|^[A-Za-z0-9_-]{48}$/.test(value)) {
+    } else if (
+      name === "tonWallet" &&
+      !/^EQ[A-Za-z0-9_-]{47}$|^[A-Za-z0-9_-]{48}$/.test(value)
+    ) {
       setSubmitError("Invalid TON wallet address");
     } else {
       setSubmitError("");
     }
-
-
   };
 
   const supabase = createClient();
@@ -56,9 +60,9 @@ export default function Page() {
         },
       });
       if (error) {
-        toast.error("Something went wrong!")
-        throw error
-      };
+        toast.error("Something went wrong!");
+        throw error;
+      }
       if (successSignUp) {
         toast.success("Please confirm your email, the message was sent!");
 
@@ -74,7 +78,9 @@ export default function Page() {
       }
     } catch (err) {
       console.error("Error while sign up at registerNewUser func:", err);
-      setSubmitError(err instanceof Error ? err.message : "An unknown error occurred");
+      setSubmitError(
+        err instanceof Error ? err.message : "An unknown error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -158,7 +164,9 @@ export default function Page() {
                   required
                 />
                 {submitError ? (
-                  <h1 className=" pt-1 text-2md  text-red-500">{submitError}</h1>
+                  <h1 className=" pt-1 text-2md  text-red-500">
+                    {submitError}
+                  </h1>
                 ) : (
                   ""
                 )}
@@ -168,7 +176,11 @@ export default function Page() {
             <button
               type="submit"
               className="w-full mt-2 py-3 rounded-full text-white font-medium"
-              style={submitError == "" ? { backgroundColor: "#169fda" } : { backgroundColor: "#2b2b2bff" }}
+              style={
+                submitError == ""
+                  ? { backgroundColor: "#169fda" }
+                  : { backgroundColor: "#2b2b2bff" }
+              }
               disabled={submitError == "" ? false : true}
             >
               {Loading ? "Creating account . . ." : "Create account"}
