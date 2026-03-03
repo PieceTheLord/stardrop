@@ -163,7 +163,7 @@ export function UploadForm() {
                     </div>
                     <div className="space-y-1">
                         <p className="text-lg font-semibold text-white">Click to upload</p>
-                        <p className="text-sm text-gray-400">XS, PNG, ZIP or PDF (max. 50MB)</p>
+                        <p className="text-sm text-gray-400">XS, PNG, ZIP or PDF (max. 500MB)</p>
                     </div>
                 </div>
             )}
