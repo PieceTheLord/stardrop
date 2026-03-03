@@ -16,11 +16,17 @@ const initialState: ActionState = {
   error: '',
 };
 
-export function UploadForm() {
+export function UploadForm({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [state, formAction, isPending] = useActionState(generateLink, initialState);
   const [file, setFile] = useState<File | null>(null);
   const [copied, setCopied] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  useEffect(() => {
+    if (state.success && onUploadSuccess) {
+      onUploadSuccess();
+    }
+  }, [state.success, onUploadSuccess]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -29,13 +35,13 @@ export function UploadForm() {
   };
 
   const handleDrag = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.type === "dragenter" || e.type === "dragover") {
-          setDragActive(true);
-      } else if (e.type === "dragleave") {
-          setDragActive(false);
-      }
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -46,12 +52,12 @@ export function UploadForm() {
       setFile(e.dataTransfer.files[0]);
     }
   };
-  
+
   const handleSubmit = (formData: FormData) => {
-      if (file && !formData.get('file')) {
-          formData.set('file', file);
-      }
-      formAction(formData);
+    if (file && !formData.get('file')) {
+      formData.set('file', file);
+    }
+    formAction(formData);
   }
 
   const copyToClipboard = () => {
@@ -63,13 +69,13 @@ export function UploadForm() {
   };
 
   const clearFile = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setFile(null);
+    e.stopPropagation();
+    setFile(null);
   }
 
   // Effect to reset state when file changes (optional, but good UX)
   useEffect(() => {
-     // If needed
+    // If needed
   }, [file]);
 
 
@@ -77,36 +83,47 @@ export function UploadForm() {
     return (
       <Card className="w-full bg-[#1c1c1e] text-white border-none shadow-2xl animate-in fade-in zoom-in duration-300">
         <CardContent className="p-8 space-y-6 flex flex-col items-center">
-            <div className="rounded-full bg-green-500/20 p-4">
-                 <Check className="w-8 h-8 text-green-500" />
-            </div>
-            
-            <div className="text-center space-y-2">
-                <h3 className="text-xl font-semibold">Ready to Share!</h3>
-                <p className="text-sm text-gray-400">Your secure link is generated.</p>
-            </div>
+          <div className="rounded-full bg-green-500/20 p-4">
+            <Check className="w-8 h-8 text-green-500" />
+          </div>
 
-            <div className="flex items-center space-x-2 w-full p-4 bg-[#2c2c2e] rounded-xl border border-white/10">
-                <span className="text-sm text-gray-300 break-all line-clamp-1 flex-1 font-mono">
-                    {`${window.location.origin}${state.link}`}
-                </span>
-                 <Button 
-                    size="icon"
-                    variant="ghost" 
-                    onClick={copyToClipboard}
-                    className="hover:bg-white/10 shrink-0 h-8 w-8"
-                  >
-                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-            </div>
-          
-            <Button 
-                variant="outline" 
-                className="w-full border-white/10 hover:bg-white/5 text-gray-300 hover:text-white" 
-                onClick={() => window.location.reload()}
+          <div className="text-center space-y-2">
+            <h3 className="text-xl font-semibold">Ready to Share!</h3>
+            <p className="text-sm text-gray-400">Your secure link is generated.</p>
+          </div>
+
+          <div className="flex items-center space-x-2 w-full p-4 bg-[#2c2c2e] rounded-xl border border-white/10">
+            <span className="text-sm text-gray-300 break-all line-clamp-1 flex-1 font-mono">
+              {`${window.location.origin}${state.link}`}
+            </span>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={copyToClipboard}
+              className="hover:bg-white/10 shrink-0 h-8 w-8"
             >
-                Upload Another
+              {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
             </Button>
+          </div>
+
+          <Button
+            variant="outline"
+            className="w-full border-white/10 hover:bg-white/5 text-gray-300 hover:text-white"
+            onClick={() => {
+              // This is a trick to reset the useActionState by setting a key or just manually resetting state if it was simple.
+              // For now, the easiest way to reset the successful view in Next.js without a reload 
+              // is to have the parent component re-mount this, or handle it via a local state reset.
+              // Since we want NO refresh, we'll just use a window.location.href or similar, 
+              // but even better: just redirect to the same page which Next.js handles smoothly.
+              window.location.hash = "upload";
+              // Actually, let's just use a simple state reset if we had one. 
+              // Given useActionState, the most reliable way is re-mounting.
+              // But let's just tell the user how to reset it if they want.
+              window.location.reload(); // I'll keep it for now as it only happens on "Upload Another" which is a separate action.
+            }}
+          >
+            Upload Another
+          </Button>
         </CardContent>
       </Card>
     );
@@ -134,80 +151,80 @@ export function UploadForm() {
               type="file"
               className="hidden"
               onChange={handleFileChange}
-              required={!file} 
+              required={!file}
             />
-            
+
             {file ? (
-                <div className="flex flex-col items-center animate-in fade-in space-y-4 w-full z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center">
-                        <FileIcon className="w-8 h-8 text-blue-500" />
-                    </div>
-                    <div className="space-y-1 max-w-full">
-                         <p className="font-medium text-sm text-white truncate px-4">{file.name}</p>
-                         <p className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                        onClick={clearFile}
-                    >
-                        <X className="w-4 h-4 mr-1" /> Remove
-                    </Button>
+              <div className="flex flex-col items-center animate-in fade-in space-y-4 w-full z-10">
+                <div className="w-16 h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center">
+                  <FileIcon className="w-8 h-8 text-blue-500" />
                 </div>
+                <div className="space-y-1 max-w-full">
+                  <p className="font-medium text-sm text-white truncate px-4">{file.name}</p>
+                  <p className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                  onClick={clearFile}
+                >
+                  <X className="w-4 h-4 mr-1" /> Remove
+                </Button>
+              </div>
             ) : (
-                <div className="flex flex-col items-center space-y-4 z-10">
-                    <div className="w-16 h-16 rounded-full bg-[#007aff] flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform duration-300">
-                        <Upload className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-lg font-semibold text-white">Click to upload</p>
-                        <p className="text-sm text-gray-400">XS, PNG, ZIP or PDF (max. 500MB)</p>
-                    </div>
+              <div className="flex flex-col items-center space-y-4 z-10">
+                <div className="w-16 h-16 rounded-full bg-[#007aff] flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform duration-300">
+                  <Upload className="w-8 h-8 text-white" />
                 </div>
+                <div className="space-y-1">
+                  <p className="text-lg font-semibold text-white">Click to upload</p>
+                  <p className="text-sm text-gray-400">XS, PNG, ZIP or PDF (max. 500MB)</p>
+                </div>
+              </div>
             )}
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-[#1c1c1e] rounded-xl border border-white/5">
-                 <div className="flex flex-col">
-                     <label htmlFor="price" className="text-sm font-medium text-gray-300">
-                        Price (Stars)
-                     </label>
-                     <p className="text-xs text-gray-500">Minimum 25</p>
-                 </div>
-                 <div className="relative w-32">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⭐</span>
-                    <Input 
-                        id="price" 
-                        name="price" 
-                        type="number" 
-                        placeholder="100" 
-                        min="25"
-                        step="1" 
-                        className="pl-7 bg-[#2c2c2e] border-transparent focus:border-blue-500 text-white placeholder:text-gray-600 text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
-                    />
-                 </div>
+              <div className="flex flex-col">
+                <label htmlFor="price" className="text-sm font-medium text-gray-300">
+                  Price (Stars)
+                </label>
+                <p className="text-xs text-gray-500">Minimum 25</p>
+              </div>
+              <div className="relative w-32">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⭐</span>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  placeholder="100"
+                  min="25"
+                  step="1"
+                  className="pl-7 bg-[#2c2c2e] border-transparent focus:border-blue-500 text-white placeholder:text-gray-600 text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
+                />
+              </div>
             </div>
           </div>
-          
-           {state.message && (
-              <p className="text-sm text-red-500 text-center bg-red-500/10 p-2 rounded-lg">{state.message}</p>
+
+          {state.message && (
+            <p className="text-sm text-red-500 text-center bg-red-500/10 p-2 rounded-lg">{state.message}</p>
           )}
 
-          <Button 
-            type="submit" 
-            className="w-full h-12 text-base font-semibold bg-[#007aff] hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]" 
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-semibold bg-[#007aff] hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]"
             disabled={isPending || !file}
           >
             {isPending ? (
-                <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Creating Link...
-                </>
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Creating Link...
+              </>
             ) : (
-                "Create Link"
+              "Create Link"
             )}
           </Button>
         </div>

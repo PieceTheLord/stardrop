@@ -17,7 +17,7 @@ export default function Page() {
     tonWallet: "",
   });
   const [Loading, setLoading] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string>(" ");
+  const [submitError, setSubmitError] = useState<string>("");
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,29 +26,17 @@ export default function Page() {
       ...User,
       [name]: value,
     });
-
-    if (
-      (name === "password") &&
-      value.length <= 6
-    ) {
-      setSubmitError("Password must be at least 6 characters long");
-    }
-    else if (name === "checkPsw" && value !== User.password) {
-      setSubmitError("Passwords doesn't match!");
-    } else if (
-      name === "tonWallet" &&
-      !/^EQ[A-Za-z0-9_-]{47}$|^[A-Za-z0-9_-]{48}$/.test(value)
-    ) {
-      setSubmitError("Invalid TON wallet address");
-    } else {
-      setSubmitError("");
-    }
   };
 
   const supabase = createClient();
 
   async function registerNewUser(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (User.password.length <= 6)
+      return setSubmitError("Password lenght must be at least 6 ");
+    if (User.checkPsw !== User.password)
+      return setSubmitError("Passwords does not match");
 
     try {
       setLoading(true);
@@ -175,13 +163,7 @@ export default function Page() {
 
             <button
               type="submit"
-              className="w-full mt-2 py-3 rounded-full text-white font-medium"
-              style={
-                submitError == ""
-                  ? { backgroundColor: "#169fda" }
-                  : { backgroundColor: "#2b2b2bff" }
-              }
-              disabled={submitError == "" ? false : true}
+              className="w-full mt-2 py-3 rounded-full text-white font-medium bg-[#169fda]"
             >
               {Loading ? "Creating account . . ." : "Create account"}
             </button>

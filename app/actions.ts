@@ -62,7 +62,7 @@ export async function generateLink(prevState: ActionState, formData: FormData): 
 
   // 3. Generate Link
   const link = `/d/${insertData.id}`;
-
+  
   return { success: true, message: 'Success', link };
 }
 

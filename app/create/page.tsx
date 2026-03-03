@@ -1,5 +1,6 @@
 import { UploadForm } from "@/components/creator/upload-form";
 import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 
 export default function Home() {
   return (
@@ -12,20 +13,19 @@ export default function Home() {
         </div>
 
         <div className="space-y-6">
-            <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-bold">Monetize instantly</h2>
-                <p className="text-muted-foreground">
-                    Sell digital files directly via Telegram Stars
-                </p>
-            </div>
-            
-            <UploadForm />
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold">Monetize instantly</h2>
+            <p className="text-muted-foreground">
+              Sell digital files directly via Telegram Stars
+            </p>
+          </div>
 
-            <div className="pt-4">
-                 <Button variant="outline" className="w-full rounded-xl h-12 border-white/10 bg-white/5 hover:bg-white/10 text-white">
-                    Connect Wallet
-                 </Button>
-            </div>
+          <UploadForm />
+          <a href="/" className="w-full h-full mt-4">
+            <Button  variant={"outline"} className="w-full rounded-xl mt-4">
+              Cancel
+            </Button>
+          </a>
         </div>
       </div>
     </main>

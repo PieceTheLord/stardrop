@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "500mb"
     }
   },
+  cacheComponents: true,
   // allowedDevOrigins: [
   //   'https://biennially-safe-phoebe.cloudpub.ru/'
   // ]
