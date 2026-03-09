@@ -1,17 +1,18 @@
 import { createClient } from "@/utils/supabase/server";
 import { ProfileDropdownMenu } from "@/components/ui/profileDropDown";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
+import { Suspense } from "react";
 
 export default async function Home() {
   const supabase = await createClient();
-  const user = await supabase.auth.getUser()
+  const user = await supabase.auth.getUser();
 
   // Fetch initial files
   const { data: files, error } = await supabase
-    .from('files')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .eq('email', user.data.user!.email);
+    .from("files")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .eq("email", user.data.user!.email);
 
   if (error) {
     console.error("Error fetching files:", error);
@@ -24,17 +25,31 @@ export default async function Home() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div>
-              <h1 className="text-xl font-bold">{user.data.user?.email}</h1>
+              <Suspense
+                fallback={
+                  <p className="text-xl font-bold animate-pulse w-48 h-7 bg-gray-700 rounded-md">
+                    loading . . .
+                  </p>
+                }
+              >
+                <h1 className="text-xl font-bold">{user.data.user?.email}</h1>
+              </Suspense>
               <p className="text-sm text-muted-foreground flex items-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
                 Active Content Creator
               </p>
             </div>
           </div>
-          <ProfileDropdownMenu />
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProfileDropdownMenu />
+          </Suspense>
         </div>
-
-        <DashboardContent initialFiles={files || []} userEmail={user.data.user!.email!} />
+        {/* <Suspense fallback={<div>Loading...</div>}> */}
+          <DashboardContent
+            initialFiles={files || []}
+            userEmail={user.data.user!.email!}
+          />
+        {/* </Suspense> */}
       </div>
     </main>
   );
