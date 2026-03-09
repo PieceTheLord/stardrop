@@ -25,31 +25,19 @@ export default async function Home() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div>
-              <Suspense
-                fallback={
-                  <p className="text-xl font-bold animate-pulse w-48 h-7 bg-gray-700 rounded-md">
-                    loading . . .
-                  </p>
-                }
-              >
-                <h1 className="text-xl font-bold">{user.data.user?.email}</h1>
-              </Suspense>
+              <h1 className="text-xl font-bold">{user.data.user?.email}</h1>
               <p className="text-sm text-muted-foreground flex items-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
                 Active Content Creator
               </p>
             </div>
           </div>
-          <Suspense fallback={<div>Loading...</div>}>
-            <ProfileDropdownMenu />
-          </Suspense>
+          <ProfileDropdownMenu />
         </div>
-        {/* <Suspense fallback={<div>Loading...</div>}> */}
-          <DashboardContent
-            initialFiles={files || []}
-            userEmail={user.data.user!.email!}
-          />
-        {/* </Suspense> */}
+        <DashboardContent
+          initialFiles={files || []}
+          userEmail={user.data.user!.email!}
+        />
       </div>
     </main>
   );
